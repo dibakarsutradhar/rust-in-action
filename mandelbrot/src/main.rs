@@ -33,14 +33,11 @@ fn calculate_mandelbrot (
             // points within the search space
             let cx = x_min + (x_max - x_min) * x_percent;
             let cy = y_min + (y_max - y_min) * y_percent;
-
             let escaped_at = mandelbrot_at_point(cx, cy, max_iters);
             row.push(escaped_at);
         }
-
         rows.push(row);
     }
-
     rows
 }
 
@@ -68,7 +65,7 @@ fn mandelbrot_at_point (
         // repeatedly mutates z to check whether c lies within the Madelbrot set
         z = z * z + c;
     }
-    max_iters  // As i is no longer in scope, we fall back to max_iters
+    return max_iters  // As i is no longer in scope, we fall back to max_iters
 }
 
 fn render_mandelbrot(escape_vals: Vec<Vec<usize>>) {
@@ -76,15 +73,15 @@ fn render_mandelbrot(escape_vals: Vec<Vec<usize>>) {
         let mut line = String::with_capacity(row.len());
         for column in row {
             let val = match column {
-                0..=2 => ' ',
-                3..=5 => '.',
-                6..=10 => '•',
-                11..=30 => '*',
-                31..=100 => '+',
-                101..=200 => 'x',
-                201..=400 => '$',
-                401..=700 => '#',
-                _ => '%',
+                0 ..= 2 => ' ',
+                2 ..= 5 => '.',
+                5 ..= 10 => '•',
+                11 ..= 30 => '*',
+                30 ..= 100 => 'x',
+                100 ..= 200 => '%',
+                200 ..= 400 => '$',
+                400 ..= 700 => '#',
+                _ => '@',
             };
 
             line.push(val);
@@ -94,6 +91,6 @@ fn render_mandelbrot(escape_vals: Vec<Vec<usize>>) {
 }
 
 fn main() {
-    let mandelbrot = calculate_mandelbrot(1000, 2.0, 1.0, -1.0, 1.0, 100, 24);
+    let mandelbrot = calculate_mandelbrot(1000, -2.0, 1.0, -1.1, 1.1, 140, 30);
     render_mandelbrot(mandelbrot);
 }
