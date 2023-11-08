@@ -1,5 +1,20 @@
+use std::fs::File;
+use std::io;
+use std::io::BufReader;
+use std::io::prelude::*;
 use regex::Regex;
 use clap::{App, Arg};
+
+fn process_lines<T: BufRead + Sized>(reader: T, re: Regex) {
+    for line_ in reader.lines() {
+        let line = line_.unwrap();
+
+        match re.find(&line) {
+            Some(_) => println!("{}", line),
+            None => (),
+        }
+    }
+}
 
 fn main() {
     // Incrementally builds a command argument parser, where each argument takes an Arg.
@@ -10,13 +25,19 @@ fn main() {
              .help("The pattern to search for")
              .takes_value(true)
              .required(true))
+        .arg(Arg::with_name("input")
+             .help("File to search")
+             .takes_value(true)
+             .required(true))
         .get_matches();
 
     // Extracts the pattern argument
     let pattern = args.value_of("pattern").unwrap();
 
     // unwrap() unwraps a Result, crashing if an error occurs.
-    let re = Regex::new("picture").unwrap();
+    let re = Regex::new(pattern).unwrap();
+    
+    let input = args.value_of("pattern").unwrap_or("-");
 
     let quote = "Every face, every shop, bedroom window, public-house, and 
     dark quare is a picture feverishly turned--in search of what?
@@ -36,4 +57,15 @@ fn main() {
             None => {},
         }
     }
+
+    if input == "-" {
+        let stdin = io::stdin();
+        let reader = stdin.lock();
+        process_lines(reader, re);
+    } else {
+        let f = File::open(input).unwrap();
+        let reader = BufReader::new(f);
+        process_lines(reader, re);
+    }
+    
 }
